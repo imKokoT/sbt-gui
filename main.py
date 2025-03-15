@@ -1,4 +1,5 @@
 from .properties import *
+from .menu_gui import MenuGUI
 from logger import logger     # type: ignore
 from runtime_data import rtd  # type: ignore
 
@@ -10,6 +11,9 @@ def start_gui():
         exit(1)
     if RUN_WITH_ANY:
         logger.warning(f'{RUN_WITH_ANY=}')
+
+    app = MenuGUI()
+    app.mainloop()
 
 
 if __name__ == '__main__':
