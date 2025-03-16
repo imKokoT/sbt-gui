@@ -7,14 +7,19 @@ class MenuGUI(ttk.Window):
     '''main startup window'''
     def __init__(self):
         super().__init__()
-        self.title(f'{PLUGIN_NAME} v{VERSION}')
+        self.title(f'{'[DEBUG] ' if DEBUG else ''}{PLUGIN_NAME} v{VERSION}')
         self.geometry('400x300')
+        self.columnconfigure(0, weight=1)
 
-        self.label = ttk.Label(self, text="Hello, ttkbootstrap!", font=("Arial", 14))
-        self.button = ttk.Button(self, text="Click Me",  command=self.onButClick)
+        # --- preload ---
 
-        self.label.pack(pady=20)
-        self.button.pack(pady=10)
+        # --- widgets ---
+        self.main_frame = ttk.Frame(self)
+        self.main_frame.grid(row=0, column=0)
 
-    def onButClick(self):
-        self.label.config(text="Button Clicked!")
+        self.selectSchema_cb = ttk.Combobox(self.main_frame, values=['test1', 'test2', 'test3'])
+        self.selectSchema_cb.current(0)
+        self.label1 = ttk.Label(self.main_frame, text='Schema: ', justify='right')
+
+        self.label1.grid(row=0, column=0)
+        self.selectSchema_cb.grid(row=0, column=1, )
