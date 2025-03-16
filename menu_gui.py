@@ -50,6 +50,11 @@ class MenuGUI(ttk.Window):
                 while True:
                     if get_event('cancel-process'):
                         logger.info('canceling process...')
+                        
+                        # NOTE: important to pop useless data from runtime
+                        rtd.tryPop('service')
+                        rtd.tryPop('schema')
+
                         exit(0)
                     await asyncio.sleep(0.05)
 
