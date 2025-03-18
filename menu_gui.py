@@ -44,7 +44,7 @@ class MenuGUI(ttk.Window):
 
     # --- button methods ---------------------------------------------------------------------
     def on_backup_but(self):
-        logger.debug(' === STARTING BACKUP THREAD ===')
+        logger.info('=== STARTING BACKUP THREAD ===')
         
         def _backupThreadWorker():
             async def _cancelHandler():
@@ -57,7 +57,7 @@ class MenuGUI(ttk.Window):
                         rtd.tryPop('schema')
                         clearEvents()
 
-                        exit(0)
+                        loop.stop()
                         return
                     await asyncio.sleep(EVENT_UPDATE_DELAY)
 
@@ -73,8 +73,9 @@ class MenuGUI(ttk.Window):
                     asyncio.to_thread(_main),
                     return_exceptions=False
                 ))
-            except SystemExit: pass
+            except RuntimeError: pass
             loop.close()
+            logger.info('=== END BACKUP PROCESS ===')
 
         backupGUI = BackupGUI(self, self.selectSchema_cb.get())
         backupThread = Thread(target=_backupThreadWorker, daemon=True)
