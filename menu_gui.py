@@ -25,6 +25,7 @@ class MenuGUI(ttk.Window):
         self.title(f'{'[DEBUG] ' if DEBUG else ''}{PLUGIN_NAME} v{VERSION}')
         self.geometry('300x300')
         self.columnconfigure(0, weight=1)
+        self.protocol("WM_DELETE_WINDOW", lambda: self.after(0, self.quit))
 
         # --- preload ---
 
@@ -46,7 +47,7 @@ class MenuGUI(ttk.Window):
         logger.debug('starting backup thread')
         
         def _backupThreadWorker():
-            async def _cancelHandler():
+            async def _cancelHandler(loop:asyncio.AbstractEventLoop):
                 while True:
                     if get_event('cancel-process'):
                         logger.info('canceling process...')
@@ -55,7 +56,8 @@ class MenuGUI(ttk.Window):
                         rtd.tryPop('service')
                         rtd.tryPop('schema')
 
-                        exit(0)
+                        loop.stop()
+                        return
                     await asyncio.sleep(0.05)
 
             async def _main():
@@ -64,11 +66,14 @@ class MenuGUI(ttk.Window):
 
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-            loop.run_until_complete(asyncio.gather(
-                _cancelHandler(), 
+            try:
+                loop.run_until_complete(asyncio.gather(
+                _cancelHandler(loop), 
                 _main(),
                 return_exceptions=False
                 ))
+            except RuntimeError: pass
+            loop.close()
 
         backupGUI = BackupGUI(self, self.selectSchema_cb.get())
         backupThread = Thread(target=_backupThreadWorker, daemon=True)
