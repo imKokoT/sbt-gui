@@ -3,6 +3,7 @@ import threading
 import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
+from miscellaneous.events import pushEvent
 from properties import EVENT_UPDATE_DELAY
 
 
@@ -16,6 +17,7 @@ class BackupGUI(ttk.Toplevel):
         self.geometry('300x160')
         self.attributes("-toolwindow", False)
         self.resizable(False, False)
+        self.protocol("WM_DELETE_WINDOW", lambda: (pushEvent('cancel-process'), self.after(0, self.destroy))[-1])
         
         # --- widgets ---
         self.progress = ttk.Progressbar(self, orient=HORIZONTAL, mode='determinate', length=280, 
