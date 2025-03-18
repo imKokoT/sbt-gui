@@ -66,7 +66,8 @@ class MenuGUI(ttk.Window):
             asyncio.set_event_loop(loop)
             loop.run_until_complete(asyncio.gather(
                 _cancelHandler(), 
-                _main()
+                _main(),
+                return_exceptions=False
                 ))
 
         backupGUI = BackupGUI(self, self.selectSchema_cb.get())
