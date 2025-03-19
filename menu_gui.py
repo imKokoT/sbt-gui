@@ -49,7 +49,7 @@ class MenuGUI(ttk.Window):
         logger.info('=== STARTING BACKUP PROCESS ===')
         
         def _backupThreadWorker():
-            async def _cancelHandler():
+            def _cancelHandler():
                 while True:
                     if getEvent('cancel-process'):
                         logger.info('canceling process...')
@@ -61,23 +61,26 @@ class MenuGUI(ttk.Window):
 
                         loop.stop()
                         return
-                    await asyncio.sleep(EVENT_UPDATE_DELAY)
+                    # await asyncio.sleep(EVENT_UPDATE_DELAY)
+                    Event().wait(EVENT_UPDATE_DELAY)
 
             def _main():
-                createBackupOf(self.selectSchema_cb.get())
+                try:
+                    createBackupOf(self.selectSchema_cb.get())
+                except SystemExit: pass
                 pushEvent('cancel-process')
 
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
                 loop.run_until_complete(asyncio.gather(
-                    _cancelHandler(), 
+                    asyncio.to_thread(_cancelHandler), 
                     asyncio.to_thread(_main),
                     return_exceptions=False
                 ))
             except RuntimeError: pass
             loop.close()
-            logger.info('=== ENDED BACKUP PROCESS ===')
+            # logger.info('=== ENDED BACKUP PROCESS ===')
 
         backupGUI = BackupGUI(self, self.selectSchema_cb.get())
         backupThread = Thread(target=_backupThreadWorker, daemon=True)
