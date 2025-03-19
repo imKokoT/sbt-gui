@@ -57,7 +57,7 @@ class MenuGUI(ttk.Window):
                         # NOTE: important to pop useless data from runtime
                         rtd.tryPop('service')
                         rtd.tryPop('schema')
-                        clearEvents()
+                        # clearEvents()
 
                         loop.stop()
                         return
@@ -73,6 +73,7 @@ class MenuGUI(ttk.Window):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
+                clearEvents()
                 loop.run_until_complete(asyncio.gather(
                     asyncio.to_thread(_cancelHandler), 
                     asyncio.to_thread(_main),
@@ -80,7 +81,7 @@ class MenuGUI(ttk.Window):
                 ))
             except RuntimeError: pass
             loop.close()
-            # logger.info('=== ENDED BACKUP PROCESS ===')
+            logger.info('=== ENDED BACKUP PROCESS ===')
 
         backupGUI = BackupGUI(self, self.selectSchema_cb.get())
         backupThread = Thread(target=_backupThreadWorker, daemon=True)
