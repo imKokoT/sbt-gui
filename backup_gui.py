@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from miscellaneous.events import pushEvent
+from miscellaneous.events import pushEvent, getEvent
 from properties import EVENT_UPDATE_DELAY
 
 
@@ -19,7 +19,7 @@ class BackupGUI(ttk.Toplevel):
         self.attributes("-toolwindow", False)
         # self.resizable(False, False)
         self.protocol("WM_DELETE_WINDOW", lambda: (pushEvent('cancel-process'), self.after(0, self.destroy))[-1])
-        
+
         # --- widgets ---
         self.progress_bar = ttk.Progressbar(self, orient=HORIZONTAL, mode='determinate', length=580, maximum=1,
                                         style='SBT.Horizontal.TProgressbar')
@@ -32,9 +32,17 @@ class BackupGUI(ttk.Toplevel):
         # --- other ---
         self.transient(parent)  # Attach to main window
         self.grab_set()  # Lock interaction with the main window
+        self._eventHandler()
 
 
     def _eventHandler(self):
         '''receive all tool events'''
+        log = getEvent('log-pushed')
+        if log:
+            self.logs_st.configure(state='normal')
+            self.logs_st.insert(tk.END, log)
+            self.logs_st.insert(tk.END, '\n')
+            self.logs_st.see(tk.END)
+            self.logs_st.configure(state='disabled')
 
-        self.after(EVENT_UPDATE_DELAY, self._eventHandler)
+        self.after(int(EVENT_UPDATE_DELAY*1000), self._eventHandler)

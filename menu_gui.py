@@ -10,6 +10,7 @@ from logger import logger
 from backup import createBackupOf
 from runtime_data import rtd
 from miscellaneous.events import *
+from miscellaneous.events import tryPopEvent
 
 
 def _getSchemasNames() -> list[str]:
@@ -44,7 +45,8 @@ class MenuGUI(ttk.Window):
 
     # --- button methods ---------------------------------------------------------------------
     def on_backup_but(self):
-        logger.info('=== STARTING BACKUP THREAD ===')
+        tryPopEvent('log-pushed')
+        logger.info('=== STARTING BACKUP PROCESS ===')
         
         def _backupThreadWorker():
             async def _cancelHandler():
@@ -75,7 +77,7 @@ class MenuGUI(ttk.Window):
                 ))
             except RuntimeError: pass
             loop.close()
-            logger.info('=== END BACKUP PROCESS ===')
+            logger.info('=== ENDED BACKUP PROCESS ===')
 
         backupGUI = BackupGUI(self, self.selectSchema_cb.get())
         backupThread = Thread(target=_backupThreadWorker, daemon=True)
