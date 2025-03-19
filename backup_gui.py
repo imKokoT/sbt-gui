@@ -25,8 +25,10 @@ class BackupGUI(ttk.Toplevel):
                                         style='SBT.Horizontal.TProgressbar')
         self.progress_bar['value'] = 0.5
         self.logs_st = scrolledtext.ScrolledText(self, wrap=tk.WORD, width=590, height=200)
+        self.currentLog_l = ttk.Label(self, justify='left', font=('Arial', 8, 'italic'))
 
-        self.progress_bar.pack(pady=10, padx=10, fill='x')
+        self.progress_bar.pack(pady=16, padx=10, fill='x')
+        self.currentLog_l.pack(pady=1, padx=10, fill='x')
         self.logs_st.pack(pady=15, padx=5, expand=True)
         
         # --- other ---
@@ -44,5 +46,7 @@ class BackupGUI(ttk.Toplevel):
             self.logs_st.insert(tk.END, '\n')
             self.logs_st.see(tk.END)
             self.logs_st.configure(state='disabled')
+
+            self.currentLog_l.config(text=log)
 
         self.after(int(EVENT_UPDATE_DELAY*1000), self._eventHandler)
