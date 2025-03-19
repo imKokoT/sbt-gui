@@ -8,6 +8,7 @@ from .properties import *
 from .backup_gui import BackupGUI
 from logger import logger
 from backup import createBackupOf
+from restore import restoreFromCloud
 from runtime_data import rtd
 from miscellaneous.events import *
 from miscellaneous.events import tryPopEvent
@@ -38,10 +39,12 @@ class MenuGUI(ttk.Window):
         self.selectSchema_cb.current(0)
         self.label1 = ttk.Label(self.main_frame, text='Schema: ', justify='right')
         self.backup_but = ttk.Button(self.main_frame, text='Backup', command=self.on_backup_but)
+        self.restore_but = ttk.Button(self.main_frame, text='Restore', command=self.on_restore_but)
 
         self.label1.grid(row=0, column=0)
         self.selectSchema_cb.grid(row=0, column=1, )
         self.backup_but.grid(row=1, columnspan=2, sticky='ew', pady=4)
+        self.restore_but.grid(row=2, columnspan=2, sticky='ew', pady=2)
 
     # --- button methods ---------------------------------------------------------------------
     def on_backup_but(self):
@@ -91,3 +94,50 @@ class MenuGUI(ttk.Window):
         self.wait_window(backupGUI)
 
         rtd.pop('backup-thread')
+
+
+    def on_restore_but(self):
+        tryPopEvent('log-pushed')
+        logger.info('=== STARTING RESTORE PROCESS ===')
+        
+        def _restoreThreadWorker():
+            def _cancelHandler():
+                while True:
+                    if getEvent('cancel-process'):
+                        logger.info('canceling process...')
+                        
+                        # NOTE: important to pop useless data from runtime
+                        rtd.tryPop('service')
+                        rtd.tryPop('schema')
+
+                        loop.stop()
+                        return
+                    Event().wait(EVENT_UPDATE_DELAY)
+
+            def _main():
+                try:
+                    restoreFromCloud(self.selectSchema_cb.get())
+                except SystemExit: pass
+                pushEvent('cancel-process')
+
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                clearEvents()
+                loop.run_until_complete(asyncio.gather(
+                    asyncio.to_thread(_cancelHandler), 
+                    asyncio.to_thread(_main),
+                    return_exceptions=False
+                ))
+            except RuntimeError: pass
+            loop.close()
+            logger.info('=== ENDED RESTORE PROCESS ===')
+
+        backupGUI = BackupGUI(self, self.selectSchema_cb.get())
+        backupThread = Thread(target=_restoreThreadWorker, daemon=True)
+        rtd['restore-thread'] = backupThread
+
+        backupThread.start()
+        self.wait_window(backupGUI)
+
+        rtd.pop('restore-thread')
