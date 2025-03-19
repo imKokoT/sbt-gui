@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
-from miscellaneous.events import pushEvent, getEvent
+from miscellaneous.events import pushEvent, getEvent, tryPopEvent
 from properties import EVENT_UPDATE_DELAY
 
 
@@ -39,14 +39,14 @@ class BackupGUI(ttk.Toplevel):
 
     def _eventHandler(self):
         '''receive all tool events'''
-        log = getEvent('log-pushed')
-        if log:
+        logs = tryPopEvent('log-pushed')
+        if logs:
             self.logs_st.configure(state='normal')
-            self.logs_st.insert(tk.END, log)
+            self.logs_st.insert(tk.END, '\n'.join(logs))
             self.logs_st.insert(tk.END, '\n')
             self.logs_st.see(tk.END)
             self.logs_st.configure(state='disabled')
 
-            self.currentLog_l.config(text=log)
+            self.currentLog_l.config(text=logs[-1])
 
         self.after(int(EVENT_UPDATE_DELAY*1000), self._eventHandler)
