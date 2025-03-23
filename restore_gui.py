@@ -2,6 +2,8 @@ import sys
 import threading
 import tkinter as tk
 from tkinter import scrolledtext
+from tkinter import simpledialog
+from tkinter import messagebox
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from miscellaneous.events import pushEvent, getEvent, tryPopEvent
@@ -48,5 +50,24 @@ class RestoreGUI(ttk.Toplevel):
             self.logs_st.configure(state='disabled')
 
             self.currentLog_l.config(text=logs[-1])
+
+        msg = getEvent('get-confirm')
+        if msg:
+            yn = messagebox.askyesno("Confirm Required", msg)
+            pushEvent('send-confirm', 'y' if yn else 'n')
+        
+        msg = getEvent('get-password')
+        if msg:
+            NotImplementedError()
+        
+        msg = getEvent('get-string')
+        if msg:
+            s = simpledialog.askstring("Input Required", msg)
+            pushEvent('send-string', s if s else '')
+        
+        if getEvent('get-folder_path-skippable'):
+            NotImplementedError()
+        if getEvent('get-folder_path'):
+            NotImplementedError()
 
         self.after(int(EVENT_UPDATE_DELAY*1000), self._eventHandler)

@@ -5,6 +5,7 @@ from threading import Thread
 import tkinter as tk
 import ttkbootstrap as ttk
 from .properties import *
+from .restore_gui import RestoreGUI
 from .backup_gui import BackupGUI
 from logger import logger
 from backup import createBackupOf
@@ -133,11 +134,11 @@ class MenuGUI(ttk.Window):
             loop.close()
             logger.info('=== ENDED RESTORE PROCESS ===')
 
-        backupGUI = BackupGUI(self, self.selectSchema_cb.get())
-        backupThread = Thread(target=_restoreThreadWorker, daemon=True)
-        rtd['restore-thread'] = backupThread
+        restoreGUI = RestoreGUI(self, self.selectSchema_cb.get())
+        restoreThread = Thread(target=_restoreThreadWorker, daemon=True)
+        rtd['restore-thread'] = restoreThread
 
-        backupThread.start()
-        self.wait_window(backupGUI)
+        restoreThread.start()
+        self.wait_window(restoreGUI)
 
         rtd.pop('restore-thread')
