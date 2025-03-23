@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 from tkinter import simpledialog
 from tkinter import messagebox
+from tkinter import filedialog
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from miscellaneous.events import pushEvent, getEvent, tryPopEvent
@@ -58,7 +59,8 @@ class RestoreGUI(ttk.Toplevel):
         
         msg = getEvent('get-password')
         if msg:
-            NotImplementedError()
+            p = simpledialog.askstring("Password Required", msg, show="*")
+            pushEvent('send-password', p)
         
         msg = getEvent('get-string')
         if msg:
@@ -66,7 +68,8 @@ class RestoreGUI(ttk.Toplevel):
             pushEvent('send-string', s if s else '')
         
         if getEvent('get-folder_path-skippable'):
-            NotImplementedError()
+            f = filedialog.askdirectory(title="Select a folder")
+            pushEvent('send-folder_path', f)
         if getEvent('get-folder_path'):
             NotImplementedError()
 
