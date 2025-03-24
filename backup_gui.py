@@ -23,7 +23,6 @@ class BackupGUI(ttk.Toplevel):
         # --- widgets ---
         self.progress_bar = ttk.Progressbar(self, orient=HORIZONTAL, mode='determinate', length=580, maximum=1,
                                         style='SBT.Horizontal.TProgressbar')
-        self.progress_bar['value'] = 0.5
         self.logs_st = scrolledtext.ScrolledText(self, wrap=tk.WORD, width=590, height=200)
         self.currentLog_l = ttk.Label(self, justify='left', font=('Arial', 8, 'italic'))
 
@@ -48,5 +47,9 @@ class BackupGUI(ttk.Toplevel):
             self.logs_st.configure(state='disabled')
 
             self.currentLog_l.config(text=logs[-1])
+
+        progress = getEvent('update-progress')
+        if progress:
+            self.progress_bar['value'] = progress
 
         self.after(int(EVENT_UPDATE_DELAY*1000), self._eventHandler)
