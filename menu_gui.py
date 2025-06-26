@@ -61,6 +61,7 @@ class MenuGUI(ttk.Window):
                         # NOTE: important to pop useless data from runtime
                         rtd.tryPop('service')
                         rtd.tryPop('schema')
+                        rtd.tryPop('_include-chain')
                         # clearEvents()
 
                         loop.stop()
@@ -110,6 +111,7 @@ class MenuGUI(ttk.Window):
                         # NOTE: important to pop useless data from runtime
                         rtd.tryPop('service')
                         rtd.tryPop('schema')
+                        rtd.tryPop('_include-chain')
 
                         loop.stop()
                         return
